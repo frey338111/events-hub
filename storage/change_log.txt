@@ -1,0 +1,62 @@
+# Change Log
+
+## Backend (JWT customer auth)
+- Added custom JWT guard using `SimpleJwtService` and request-based guard registration in `AppServiceProvider`.
+- Introduced `CustomerJwtAuthController` with login/refresh/me/logout endpoints and wired customer routes to allow JWT without CSRF.
+- Added middleware alias `customer.auth` to prefer JWT but allow session fallback; updated routes to use it for customer endpoints.
+- Allowed Lighthouse to use `customer_jwt` guard and updated `myEvents` to accept JWT.
+- Customer event mutation now authenticates via JWT guard (fallback to session).
+- Added `customer` relation to `Events` model for dashboard listings.
+- Added migration for rejected status; dashboard stats for customers/events and pending/upcoming sections.
+
+## Frontend (React) switched to JWT
+- `useCustomer` now stores JWT in localStorage, provides login/logout, and fetches user via `/customer/jwt/me`.
+- `CustomerLogin` uses JWT login; `CustomerRegister` simplified (no Sanctum).
+- `Nav` uses `useCustomer`; logout clears token.
+- `EventDetail` uses JWT for ticket status/book/cancel; added countdown UI.
+- `CreatedByMe`, `UpcomingEvents`, `CreateNew` send Authorization header for GraphQL; create-event upload no longer uses CSRF.
+- `CustomerAccount` uses `useCustomer`; removed AuthContext usage and provider wrapper.
+- Removed `AuthContext` entirely and its imports/wrapper.
+
+## Dashboard tweaks
+- Added 2x2 header grid with customer stats, event stats, pending list, and upcoming list; stats come from `DashboardController`.
+- Events index: description column with modal; pending rows have approve/reject actions; sort links respect pending/approved routes.
+
+## Routes/guards
+- `/customer/jwt/login|refresh|logout|me` added; `/customer` group excludes CSRF.
+- Customer booking/status endpoints now use `customer.auth` (JWT or session).
+
+## Files touched (purpose)
+- app/GraphQL/Mutations/CustomerEventMutation.php — use JWT guard for createCustomerEvent.
+- app/GraphQL/Queries/CustomerEventQuery.php — use auth()->id() for myEvents.
+- app/Http/Controllers/CustomerBookingController.php — guard-agnostic auth() usage.
+- app/Http/Controllers/CustomerJwtAuthController.php — JWT login/refresh/me/logout endpoints.
+- app/Http/Controllers/CustomerLoginController.php — unchanged for dashboard/session.
+- app/Http/Controllers/CustomerRegisterController.php — unchanged (registration still allowed).
+- app/Http/Controllers/DashboardController.php — stats and lists for dashboard.
+- app/Http/Middleware/EnsureCustomerAuthenticated.php — prefer JWT guard, fallback session.
+- app/Models/Events.php — added customer relation.
+- app/Providers/AppServiceProvider.php — registers custom customer-jwt guard via request token.
+- app/Services/SimpleJwtService.php — lightweight JWT sign/verify.
+- bootstrap/app.php — middleware alias for customer.auth.
+- config/auth.php — added customer_jwt guard.
+- config/lighthouse.php — allow customer_jwt guard.
+- graphql/schema.graphql — myEvents guarded by customer_jwt/customer; event fields include status/thumb.
+- resources/js/hooks/useCustomer.js — JWT storage/login/logout/me logic.
+- resources/js/react-app.jsx — removed AuthProvider wrapper (no AuthContext).
+- resources/js/components/CustomerAccount.jsx — uses useCustomer.
+- resources/js/components/CustomerLogin.jsx — JWT login flow.
+- resources/js/components/CustomerRegister.jsx — simplified (no Sanctum).
+- resources/js/components/Nav.jsx — uses JWT logout.
+- resources/js/components/EventDetail.jsx — JWT headers for ticket actions + countdown UI.
+- resources/js/components/homepage/UpcomingEvents.jsx — sends JWT for GraphQL.
+- resources/js/components/events/CreatedByMe.jsx — JWT for myEvents query.
+- resources/js/components/events/CreateNew.jsx — JWT for createCustomerEvent (file upload).
+- resources/views/dashboard.blade.php — stats grid, pending/upcoming lists.
+- resources/views/dashboard/events/index.blade.php — description column/modal; pending actions.
+- resources/views/dashboard/events/form/event.blade.php — approve/reject buttons.
+- routes/web.php — JWT routes added; CSRF disabled for /customer; customer.auth middleware.
+- database/migrations/2025_12_10_000000_add_rejected_status_to_events_table.php — add rejected enum.
+- app/GraphQL/Queries/EventQuery.php — fields/types unchanged (context reference).
+
+Notes: Run `php artisan migrate` for the rejected status migration. Frontend relies on JWT endpoints now; ensure GraphQL and API requests include `Authorization: Bearer <token>`. EOF

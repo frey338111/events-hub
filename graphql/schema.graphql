@@ -1,0 +1,225 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+"A file upload."
+scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
+
+"Indicates what fields are available at the top level of a query operation."
+type Query {
+    "Find a single user by an identifying attribute."
+    user(
+      "Search by primary key."
+      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+
+      "Search by email address."
+      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User @find
+
+    "List multiple users."
+    users(
+      "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
+      name: String @where(operator: "like")
+    ): [User!]! @paginate(defaultCount: 10)
+}
+
+"Account of a person who uses this application."
+type User {
+    "Unique primary key."
+    id: ID!
+
+    "Non-unique name."
+    name: String!
+
+    "Unique email address."
+    email: String!
+
+    "When the email was verified."
+    email_verified_at: DateTime
+
+    "When the account was created."
+    created_at: DateTime!
+
+    "When the account was last updated."
+    updated_at: DateTime!
+}
+
+type Event {
+    id: ID!
+    title: String!
+    type: EventType
+    location: EventLocation
+    description: String
+    url_key: String
+    start_time: DateTime!
+    end_time: DateTime
+    capacity: Int
+    customer_id: Int
+    customer_name: String
+    created_at: DateTime
+    updated_at: DateTime
+    events_image: String
+    events_thumbnail: String
+    booked_count: Int
+    status: String
+}
+
+type EventType {
+    id: ID!
+    name: String!
+}
+
+type EventLocation {
+    id: ID!
+    name: String!
+}
+
+type StoreConfig {
+    id: ID!
+    name: String!
+    value: String
+}
+
+extend type Query {
+    events(
+        page: Int
+        first: Int
+        search: String
+        type: Int
+        location: Int
+        monthStart: DateTime
+    ): EventPagination! @field(resolver: "App\\GraphQL\\Queries\\EventQuery@paginatedEvents")
+}
+
+extend type Query {
+    eventByUrlKey(url_key: String!): Event
+        @field(resolver: "App\\GraphQL\\Queries\\EventQuery@eventByUrlKey")
+}
+
+extend type Query {
+    listEventTypes: [EventType!]!
+        @field(resolver: "App\\GraphQL\\Queries\\EventTypeQuery@listEventTypes")
+}
+
+extend type Query {
+    listEventLocation: [EventLocation!]!
+        @field(resolver: "App\\GraphQL\\Queries\\EventLocationQuery@listEventLocation")
+}
+
+extend type Query {
+    upcomingEvents(customer_id: ID!): [Event!]!
+        @field(resolver: "App\\GraphQL\\Queries\\UpcomingEventsQuery@resolve")
+}
+
+extend type Query {
+    popularEvents: [Event!]!
+        @field(resolver: "App\\GraphQL\\Queries\\EventQuery@popularEvents")
+}
+
+extend type Query {
+    upcomingEventsHomepage: [Event!]!
+        @field(resolver: "App\\GraphQL\\Queries\\EventQuery@upcomingEventsHomepage")
+}
+
+extend type Query {
+    myEvents: [Event!]!
+        @guard(with: ["customer_jwt", "customer"])
+        @field(resolver: "App\\GraphQL\\Queries\\CustomerEventQuery@createdByCustomer")
+}
+
+extend type Query {
+    configByName(name: String!): StoreConfig
+        @field(resolver: "App\\GraphQL\\Queries\\StoreConfigQuery@byName")
+    configByNames(names: [String!]!): [StoreConfig!]!
+        @field(resolver: "App\\GraphQL\\Queries\\StoreConfigQuery@byNames")
+}
+
+type Mutation {
+    createCustomerEvent(input: CreateCustomerEventInput!): Event!
+        @guard(with: ["customer_jwt", "customer"])
+        @field(resolver: "App\\GraphQL\\Mutations\\CustomerEventMutation@create")
+
+    cancelCustomerEvent(event_id: ID!): Event!
+        @guard(with: ["customer_jwt", "customer"])
+        @field(resolver: "App\\GraphQL\\Mutations\\CustomerEventMutation@cancel")
+
+    resendVerificationEmail(email: String!): Boolean!
+        @field(resolver: "App\\GraphQL\\Mutations\\CustomerVerificationMutation@resend")
+
+    verifyEmailAddress(hash_key: String!): Boolean!
+        @field(resolver: "App\\GraphQL\\Mutations\\CustomerVerificationMutation@verify")
+
+    resetPassword(email: String!): Boolean!
+        @field(resolver: "App\\GraphQL\\Mutations\\CustomerVerificationMutation@resetPassword")
+
+    changePassword(
+        token: String!
+        password: String!
+        password_confirmation: String!
+    ): Boolean!
+        @field(resolver: "App\\GraphQL\\Mutations\\CustomerVerificationMutation@changePassword")
+}
+
+input CreateCustomerEventInput {
+    title: String!
+    description: String
+    start_time: DateTime!
+    end_time: DateTime
+    location_id: ID!
+    type_id: ID!
+    capacity: Int!
+    url_key: String
+    events_image: Upload
+}
+
+
+type EventPagination {
+    data: [Event!]!
+    currentPage: Int!
+    lastPage: Int!
+    total: Int!
+}
+
+type MonthFilter {
+    year: Int!
+    month: Int!
+    label: String!
+    start: DateTime!
+}
+
+extend type Query {
+    eventMonths: [MonthFilter!]!
+        @field(resolver: "App\\GraphQL\\Queries\\EventQuery@monthsWithEvents")
+}
+
+type CustomerMessage {
+    id: ID!
+    title: String!
+    message: String!
+    status: String!
+    customer_id: ID!
+    created_at: DateTime
+    updated_at: DateTime
+}
+
+extend type Query {
+    unreadCustomerMessages: [CustomerMessage!]!
+        @guard(with: ["customer_jwt", "customer"])
+        @field(resolver: "App\\GraphQL\\Queries\\CustomerMessageQuery@unread")
+}
+
+type Customer {
+    id: ID!
+    name: String
+    email: String
+}
+
+type TicketValidationResult {
+    valid: Boolean!
+    message: String!
+    customer: Customer
+    event: Event
+}
+
+extend type Query {
+    validateTicket(ticket_id: ID!, hash_key: String!, customer_id: ID!): TicketValidationResult!
+        @field(resolver: "App\\GraphQL\\Queries\\TicketQuery@validate")
+}

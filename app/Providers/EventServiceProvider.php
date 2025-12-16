@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
+
+class EventServiceProvider extends ServiceProvider
+{
+    /**
+     * The event listener mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
+    protected $listen = [
+        \App\Events\EventApproved::class => [
+            \App\Listeners\QueueSaveMessageOnApproval::class,
+            \App\Listeners\SendApprovalEmail::class,
+        ],
+        \App\Events\EventBooked::class => [
+            \App\Listeners\SendBookedEmail::class,
+        ],
+        \App\Events\TicketCanceled::class => [
+            \App\Listeners\SendTicketCancelEmail::class,
+        ],
+        \App\Events\CustomerVerificationRequested::class => [
+            \App\Listeners\ResendVerificationEmail::class,
+        ],
+        \App\Events\EventCanceledByCreator::class => [
+            \App\Listeners\QueueSendEventCancelNotification::class,
+        ],
+    ];
+
+    /**
+     * Register any events for your application.
+     */
+    public function boot(): void
+    {
+        //
+    }
+
+    /**
+     * Determine if events and listeners should be automatically discovered.
+     */
+    public function shouldDiscoverEvents(): bool
+    {
+        return false; // keep manual mapping for clarity
+    }
+}
