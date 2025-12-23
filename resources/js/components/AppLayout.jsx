@@ -13,7 +13,7 @@ import TicketViewer from "./TicketViewer";
 import ResetPassword from "./ResetPassword";
 export default function AppLayout() {
     return (
-        <div className="font-sans">
+        <div className="font-sans w-full max-w-6xl mx-auto px-4">
             <Header />
             <Nav />
             <Routes>

@@ -34,7 +34,7 @@ export default function PopularEvents() {
     }
 
     return (
-        <div className="p-4 bg-white shadow rounded mt-6">
+        <div className="p-4 bg-white shadow rounded mt-6 mx-auto">
             <h2 className="text-xl font-bold mb-4">Popular Events</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -46,7 +46,7 @@ export default function PopularEvents() {
                     return (
                         <div
                             key={event.id}
-                            className="bg-gray-50 rounded shadow hover:shadow-lg transition flex flex-col overflow-hidden"
+                            className="bg-gray-50 rounded shadow hover:shadow-lg transition flex flex-col overflow-hidden w-full max-w-sm mx-auto"
                         >
                             <Link to={`/events/${event.url_key}`} className="block">
                                 <img

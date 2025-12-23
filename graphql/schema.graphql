@@ -223,3 +223,8 @@ extend type Query {
     validateTicket(ticket_id: ID!, hash_key: String!, customer_id: ID!): TicketValidationResult!
         @field(resolver: "App\\GraphQL\\Queries\\TicketQuery@validate")
 }
+
+extend type Query {
+    eventImages: [String!]!
+        @field(resolver: "App\\GraphQL\\Queries\\EventImagesQuery@resolve")
+}
