@@ -55,7 +55,11 @@ export default function AppLayout() {
                         isMobileNavOpen={isMobileNavOpen}
                         onCloseMobileNav={closeMobileNav}
                     />
-                    <main className="min-w-0 flex-1">
+                    <main
+                        className={`w-full min-w-0 transition-transform duration-200 md:translate-x-0 ${
+                            isMobileNavOpen ? "translate-x-[200px]" : "translate-x-0"
+                        }`}
+                    >
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/list" element={<Content />} />

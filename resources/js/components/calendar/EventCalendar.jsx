@@ -109,7 +109,11 @@ export default function EventCalendar({ events }) {
                             {/* Tooltip */}
                             {hoverEvent &&
                              hoverEvent.date === formatted && (
-                                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-10 bg-white border shadow-lg rounded p-2 w-48 text-sm text-left">
+                                 <div
+                                     className="absolute top-full left-1/2 z-10 w-48 -translate-x-1/2 bg-white border shadow-lg rounded p-2 text-sm text-left"
+                                     onClick={(event) => event.stopPropagation()}
+                                     onKeyDown={(event) => event.stopPropagation()}
+                                 >
                                      <strong className="block mb-1">Events:</strong>
                                      {hoverEvent.events.map(ev => (
                                          <div key={ev.id} className="mb-2">
