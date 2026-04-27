@@ -27,7 +27,7 @@
             class="flex items-center space-x-2 text-2xl font-bold focus:outline-none"
             onclick="toggle{{$nameField}}()">
         <span data-icon>&gt;</span>
-        <span>Config {{ $name }}</span>
+        <span>{{ $name }}</span>
     </button>
 </div>
 

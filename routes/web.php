@@ -5,6 +5,8 @@ use App\Http\Controllers\CustomerJwtAuthController;
 use App\Http\Controllers\CustomerLoginController;
 use App\Http\Controllers\CustomerRegisterController;
 use App\Http\Controllers\Dashboard\EventsController;
+use App\Http\Controllers\Dashboard\MenuController;
+use App\Http\Controllers\Dashboard\PageController;
 use App\Http\Controllers\Dashboard\StoreConfigController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -24,6 +26,16 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->prefix('dashboard')->group(function () {
+    Route::get('/menu', [MenuController::class, 'index'])
+        ->name('dashboard.menu.index');
+    Route::post('/menu', [MenuController::class, 'store'])
+        ->name('dashboard.menu.store');
+
+    Route::resource('/pages', PageController::class)
+        ->names('dashboard.pages');
+    Route::post('/pages/upload-image', [PageController::class, 'uploadImage'])
+        ->name('dashboard.pages.upload-image');
+
     Route::get('/events', [EventsController::class, 'index'])
         ->name('dashboard.events.index');
 
@@ -111,6 +123,9 @@ Route::get('/event/ticket/{ticket}/{hash}/{customer}',
         return view('app.index');
     }
 )->name('ticket.viewer');
+
+Route::get('/api/pages/{slug}', [PageController::class, 'showBySlug'])
+    ->name('api.pages.show');
 
 Route::get('/{any?}', function () {
     return view('app.index');

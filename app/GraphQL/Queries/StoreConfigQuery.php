@@ -6,6 +6,11 @@ use App\Models\StoreConfig;
 
 class StoreConfigQuery
 {
+    public function all(): \Illuminate\Support\Collection
+    {
+        return StoreConfig::query()->orderBy('name')->get();
+    }
+
     public function byName($_, array $args): ?StoreConfig
     {
         return StoreConfig::where('name', $args['name'])->first();

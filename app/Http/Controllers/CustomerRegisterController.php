@@ -13,9 +13,11 @@ class CustomerRegisterController extends Controller
     {
         // Validate fields
         $validator = \Validator::make($request->all(), [
-            'name' => ['required'],
+            'name' => ['required', 'regex:/^[A-Za-z0-9 ]+$/'],
             'email' => ['required', 'email', 'unique:customers,email'],
             'password' => ['required', 'min:6'],
+        ], [
+            'name.regex' => 'Name can only contain letters, numbers, and spaces.',
         ]);
 
         if ($validator->fails()) {

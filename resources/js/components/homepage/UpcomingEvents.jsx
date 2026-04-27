@@ -7,7 +7,7 @@ import useCustomer from "../../hooks/useCustomer";
 const EventCalendar = lazy(() => import("../calendar/EventCalendar"));
 
 const UPCOMING_EVENTS_QUERY = gql`
-    query UpcomingEvents($customer_id: ID!) {
+    query UpcomingEvents($customer_id: ID) {
         upcomingEvents(customer_id: $customer_id) {
             id
             title
@@ -23,7 +23,7 @@ export default function UpcomingEvents() {
     const [events, setEvents] = useState([]);
     const { data, loading } = useQuery(UPCOMING_EVENTS_QUERY, {
         skip: !customer,
-        variables: { customer_id: customer?.id },
+        variables: { customer_id: customer?.id ?? null },
         fetchPolicy: "network-only",
         context: token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
     });

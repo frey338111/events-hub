@@ -46,7 +46,7 @@ export default function EventDetail() {
     const isEventCreator = customer && event && Number(event.customer_id) === Number(customer.id);
     const [canceling, setCanceling] = useState(false);
 
-    const { data: eventData, loading: eventLoading } = useQuery(EVENT_QUERY, {
+    const { data: eventData, loading: eventLoading, error: eventError } = useQuery(EVENT_QUERY, {
         variables: { url_key },
     });
 
@@ -216,7 +216,19 @@ export default function EventDetail() {
         }
     };
 
-    if (!event || eventLoading) return <p className="p-6">Loading event...</p>;
+    if (eventLoading) return <p className="p-6">Loading event...</p>;
+
+    if (eventError) {
+        console.error("Failed to load event detail.", eventError);
+
+        return <p className="p-6 text-gray-600">Unable to load event.</p>;
+    }
+
+    if (!eventData?.eventByUrlKey) {
+        return <p className="p-6 text-gray-600">Event not found.</p>;
+    }
+
+    if (!event) return <p className="p-6">Loading event...</p>;
 
     return (
         <>

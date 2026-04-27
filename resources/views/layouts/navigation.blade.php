@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false, eventsOpen: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -15,14 +15,40 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('dashboard.events.index')" :active="request()->routeIs('dashboard.events.index')">
-                        {{ __('Live Events') }}
+                    <div class="relative flex items-center" @click.outside="eventsOpen = false">
+                        <button
+                            type="button"
+                            @click="eventsOpen = !eventsOpen"
+                            class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none {{ request()->routeIs('dashboard.events.*') ? 'border-indigo-400 text-gray-900 focus:border-indigo-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:text-gray-700 focus:border-gray-300' }}"
+                        >
+                            {{ __('Events') }}
+                            <svg class="ms-2 h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+
+                        <div
+                            x-cloak
+                            x-show="eventsOpen"
+                            x-transition
+                            class="absolute left-0 top-full z-50 mt-2 w-52 rounded-md border border-gray-200 bg-white py-2 shadow-lg"
+                        >
+                            <x-dropdown-link :href="route('dashboard.events.index')">
+                                {{ __('Live Events') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('dashboard.events.pending')">
+                                {{ __('Pending Events') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('dashboard.events.canceled')">
+                                {{ __('Cancelled Events') }}
+                            </x-dropdown-link>
+                        </div>
+                    </div>
+                    <x-nav-link :href="route('dashboard.pages.index')" :active="request()->routeIs('dashboard.pages.*')">
+                        {{ __('Pages') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('dashboard.events.pending')" :active="request()->routeIs('dashboard.events.pending')">
-                        {{ __('Pending Events') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('dashboard.events.canceled')" :active="request()->routeIs('dashboard.events.canceled')">
-                        {{ __('Canceled Events') }}
+                    <x-nav-link :href="route('dashboard.menu.index')" :active="request()->routeIs('dashboard.menu.*')">
+                        {{ __('Menu') }}
                     </x-nav-link>
                     <x-nav-link :href="route('dashboard.config.index')" :active="request()->routeIs('dashboard.config.*')">
                         {{ __('Config') }}
@@ -81,6 +107,29 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <div class="border-t border-gray-200 pt-2">
+                <div class="px-4 pb-1 text-xs font-semibold uppercase tracking-widest text-gray-400">
+                    {{ __('Events') }}
+                </div>
+                <x-responsive-nav-link :href="route('dashboard.events.index')" :active="request()->routeIs('dashboard.events.index')">
+                    {{ __('Live Events') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('dashboard.events.pending')" :active="request()->routeIs('dashboard.events.pending')">
+                    {{ __('Pending Events') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('dashboard.events.canceled')" :active="request()->routeIs('dashboard.events.canceled')">
+                    {{ __('Cancelled Events') }}
+                </x-responsive-nav-link>
+            </div>
+            <x-responsive-nav-link :href="route('dashboard.pages.index')" :active="request()->routeIs('dashboard.pages.*')">
+                {{ __('Pages') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('dashboard.menu.index')" :active="request()->routeIs('dashboard.menu.*')">
+                {{ __('Menu') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('dashboard.config.index')" :active="request()->routeIs('dashboard.config.*')">
+                {{ __('Config') }}
             </x-responsive-nav-link>
         </div>
 

@@ -78,6 +78,16 @@ type StoreConfig {
     value: String
 }
 
+type Page {
+    id: ID!
+    title: String!
+    slug: String!
+    content: String!
+    published: Boolean!
+    created_at: DateTime
+    updated_at: DateTime
+}
+
 extend type Query {
     events(
         page: Int
@@ -86,11 +96,16 @@ extend type Query {
         type: Int
         location: Int
         monthStart: DateTime
-    ): EventPagination! @field(resolver: "App\\GraphQL\\Queries\\EventQuery@paginatedEvents")
+    ): EventPagination!
+        @validate
+        @validator(class: "App\\GraphQL\\Validator\\EventQueryValidator")
+        @field(resolver: "App\\GraphQL\\Queries\\EventQuery@paginatedEvents")
 }
 
 extend type Query {
     eventByUrlKey(url_key: String!): Event
+        @validate
+        @validator(class: "App\\GraphQL\\Validator\\EventQueryValidator")
         @field(resolver: "App\\GraphQL\\Queries\\EventQuery@eventByUrlKey")
 }
 
@@ -105,7 +120,9 @@ extend type Query {
 }
 
 extend type Query {
-    upcomingEvents(customer_id: ID!): [Event!]!
+    upcomingEvents(customer_id: ID): [Event!]!
+        @validate
+        @validator(class: "App\\GraphQL\\Validator\\UpcomingEventsQueryValidator")
         @field(resolver: "App\\GraphQL\\Queries\\UpcomingEventsQuery@resolve")
 }
 
@@ -126,10 +143,23 @@ extend type Query {
 }
 
 extend type Query {
+    allConfigs: [StoreConfig!]!
+        @field(resolver: "App\\GraphQL\\Queries\\StoreConfigQuery@all")
     configByName(name: String!): StoreConfig
+        @validate
+        @validator(class: "App\\GraphQL\\Validator\\StoreConfigQueryValidator")
         @field(resolver: "App\\GraphQL\\Queries\\StoreConfigQuery@byName")
     configByNames(names: [String!]!): [StoreConfig!]!
+        @validate
+        @validator(class: "App\\GraphQL\\Validator\\StoreConfigQueryValidator")
         @field(resolver: "App\\GraphQL\\Queries\\StoreConfigQuery@byNames")
+}
+
+extend type Query {
+    pageBySlug(slug: String!): Page
+        @validate
+        @validator(class: "App\\GraphQL\\Validator\\PageQueryValidator")
+        @field(resolver: "App\\GraphQL\\Queries\\PageQuery@pageBySlug")
 }
 
 type Mutation {
@@ -221,6 +251,8 @@ type TicketValidationResult {
 
 extend type Query {
     validateTicket(ticket_id: ID!, hash_key: String!, customer_id: ID!): TicketValidationResult!
+        @validate
+        @validator(class: "App\\GraphQL\\Validator\\TicketQueryValidator")
         @field(resolver: "App\\GraphQL\\Queries\\TicketQuery@validate")
 }
 

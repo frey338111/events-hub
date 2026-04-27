@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { gql } from "graphql-tag";
+import { useSiteConfig } from "../../context/SiteConfigContext";
 
-const WELCOME_QUERY = gql`
-    query WelcomeText($name: String!) {
-        configByName(name: $name) { value }
+const GET_PAGE_QUERY = gql`
+    query GetPage($slug: String!) {
+        pageBySlug(slug: $slug) {
+            content
+        }
     }
 `;
 
@@ -15,20 +18,15 @@ const EVENT_IMAGES_QUERY = gql`
 `;
 
 export default function Content() {
-    const [welcomeText, setWelcomeText] = useState("");
     const [backgroundImage, setBackgroundImage] = useState("");
-    const { data, loading } = useQuery(WELCOME_QUERY, {
-        variables: { name: "welcome-text" },
+    const { config, loading: configLoading } = useSiteConfig();
+    const homepageSlug = config["homepage-url"]?.trim() || "";
+
+    const { data: pageData, loading: pageLoading } = useQuery(GET_PAGE_QUERY, {
+        variables: { slug: homepageSlug },
+        skip: !homepageSlug,
     });
     const { data: imagesData } = useQuery(EVENT_IMAGES_QUERY);
-
-    useEffect(() => {
-        if (data?.configByName?.value) {
-            setWelcomeText(data.configByName.value);
-        } else if (!loading) {
-            setWelcomeText("");
-        }
-    }, [data, loading]);
 
     useEffect(() => {
         const images = imagesData?.eventImages ?? [];
@@ -48,9 +46,11 @@ export default function Content() {
         return () => clearInterval(intervalId);
     }, [imagesData]);
 
-    if (loading) {
+    if (configLoading || (homepageSlug && pageLoading)) {
         return <div className="p-4 text-gray-600">Loading...</div>;
     }
+
+    const pageContent = pageData?.pageBySlug?.content || "Welcome";
 
     return (
         <div className="relative flex flex-col items-center w-full max-w-5xl mx-auto">
@@ -64,7 +64,7 @@ export default function Content() {
             />
             <div
                 className="w-4/5 -mt-[7%] rounded-xl bg-white/80 backdrop-blur-md border border-blue-200 text-slate-900 shadow-lg leading-relaxed text-1m font-medium p-5 z-10"
-                dangerouslySetInnerHTML={{ __html: welcomeText || "Welcome" }}
+                dangerouslySetInnerHTML={{ __html: pageContent }}
             />
         </div>
     );

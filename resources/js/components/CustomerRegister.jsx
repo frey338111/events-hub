@@ -21,6 +21,7 @@ export default function CustomerRegister() {
         { label: "Number", test: (p) => /\d/.test(p) },
     ];
 
+    const nameIsValid = name.trim().length > 0 && /^[A-Za-z0-9 ]+$/.test(name);
     const passwordIsStrong = passwordChecks.every((rule) => rule.test(password));
     const passwordsMatch = passwordConfirm.length === 0 ? true : password === passwordConfirm;
 
@@ -28,6 +29,11 @@ export default function CustomerRegister() {
         e.preventDefault();
         setError("");
         setSuccess("");
+
+        if (!nameIsValid) {
+            setError("Name can only contain letters, numbers, and spaces.");
+            return;
+        }
 
         if (!passwordIsStrong) {
             setError("Password does not meet complexity requirements.");
@@ -83,6 +89,11 @@ export default function CustomerRegister() {
                         onChange={(e) => setName(e.target.value)}
                         required
                     />
+                    {name.length > 0 && !nameIsValid && (
+                        <p className="mt-1 text-sm text-red-600">
+                            Name can only contain letters, numbers, and spaces.
+                        </p>
+                    )}
                 </div>
 
                 <div>
@@ -136,7 +147,7 @@ export default function CustomerRegister() {
                 <button
                     type="submit"
                     className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                    disabled={!passwordIsStrong || !passwordsMatch}
+                    disabled={!nameIsValid || !passwordIsStrong || !passwordsMatch}
                 >
                     Register
                 </button>
