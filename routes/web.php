@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CustomerBookingController;
 use App\Http\Controllers\CustomerJwtAuthController;
 use App\Http\Controllers\CustomerLoginController;
@@ -14,6 +15,15 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__.'/auth.php';
+
+if (! app()->environment('production')) {
+    Route::middleware('guest')->group(function () {
+        Route::get('/register', [RegisteredUserController::class, 'create'])
+            ->name('register');
+
+        Route::post('/register', [RegisteredUserController::class, 'store']);
+    });
+}
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -129,4 +139,4 @@ Route::get('/api/pages/{slug}', [PageController::class, 'showBySlug'])
 
 Route::get('/{any?}', function () {
     return view('app.index');
-})->where('any', '.*');
+})->where('any', '^(?!register/?$).*$');
