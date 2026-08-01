@@ -23,8 +23,18 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
+
+      # HTTP router
+      - "traefik.http.routers.events-hub-http.rule=Host(`${APP_HOST:?APP_HOST is required}`)"
+      - "traefik.http.routers.events-hub-http.entrypoints=web"
+
+      # HTTPS router
       - "traefik.http.routers.events-hub.rule=Host(`${APP_HOST:?APP_HOST is required}`)"
-      - "traefik.http.routers.events-hub.entrypoints=web"
+      - "traefik.http.routers.events-hub.entrypoints=websecure"
+      - "traefik.http.routers.events-hub.tls=true"
+      - "traefik.http.routers.events-hub.tls.certresolver=letsencrypt"
+
+      # Backend service
       - "traefik.http.services.events-hub.loadbalancer.server.port=80"
     volumes:
       - public:/var/www/html/public:ro
