@@ -2,6 +2,10 @@
 
 Full-stack event marketplace built with Laravel 12, React, and Lighthouse GraphQL. Customers can register, browse upcoming events, book tickets, and manage their bookings. Admins review and approve events, manage types/locations, and oversee ticketing from a dashboard.
 
+Demo Url:
+
+https://demo.events.hmhnetworksolutions.co.uk/about-us
+
 ## Features
 - Event catalog with search, type/location filters, and monthly views.
 - Customer registration/login (web and JWT), ticket booking/cancelation, and QR ticket viewer.
