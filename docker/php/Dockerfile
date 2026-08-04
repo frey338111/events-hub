@@ -2,6 +2,8 @@ FROM node:22-alpine AS assets
 
 WORKDIR /app
 
+# Install frontend dependencies separately so Docker can cache them, then build
+# the React/Vite assets that are copied into the final PHP image below.
 COPY package.json package-lock.json ./
 RUN npm ci
 
@@ -109,6 +111,7 @@ COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint
 
 COPY --chown=www-data:www-data . .
 COPY --from=vendor --chown=www-data:www-data /app/vendor ./vendor
+# Include the freshly compiled React bundle in every deployment image.
 COPY --from=assets --chown=www-data:www-data /app/public/build ./public/build
 
 RUN chmod +x /usr/local/bin/entrypoint \
