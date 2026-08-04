@@ -114,8 +114,12 @@ COPY --from=vendor --chown=www-data:www-data /app/vendor ./vendor
 # Include the freshly compiled React bundle in every deployment image.
 COPY --from=assets --chown=www-data:www-data /app/public/build ./public/build
 
-RUN chmod +x /usr/local/bin/entrypoint \
-    && chown -R www-data:www-data storage bootstrap/cache public
+# Keep an unmounted copy so the entrypoint can refresh the shared public volume
+# whenever a newly built image is deployed.
+RUN mkdir -p /opt/app-public \
+    && cp -a public/. /opt/app-public/ \
+    && chmod +x /usr/local/bin/entrypoint \
+    && chown -R www-data:www-data storage bootstrap/cache public /opt/app-public
 
 USER www-data
 
