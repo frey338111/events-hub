@@ -30,9 +30,6 @@ export default function Header({ isMobileNavOpen, onToggleMobileNav }) {
                     alt="Logo"
                     className="h-16 w-auto"
                 />
-                <h2 className="text-xl font-bold text-black">
-                    The Events Hub
-                </h2>
             </div>
 
             <h2 className="hidden text-xl text-black font-bold md:block">
