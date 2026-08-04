@@ -50,6 +50,12 @@ export default function AppLayout() {
                     isMobileNavOpen={isMobileNavOpen}
                     onToggleMobileNav={toggleMobileNav}
                 />
+                <div
+                    className="bg-amber-100 px-4 py-2 text-center text-sm font-medium text-amber-900"
+                    role="status"
+                >
+                    This is a demo store; no actual events are listed.
+                </div>
                 <div className="relative">
                     <Nav
                         isMobileNavOpen={isMobileNavOpen}
