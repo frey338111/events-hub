@@ -114,12 +114,8 @@ COPY --from=vendor --chown=www-data:www-data /app/vendor ./vendor
 # Include the freshly compiled React bundle in every deployment image.
 COPY --from=assets --chown=www-data:www-data /app/public/build ./public/build
 
-# Keep an unmounted copy so the entrypoint can refresh the shared public volume
-# whenever a newly built image is deployed.
-RUN mkdir -p /opt/app-public \
-    && cp -a public/. /opt/app-public/ \
-    && chmod +x /usr/local/bin/entrypoint \
-    && chown -R www-data:www-data storage bootstrap/cache public /opt/app-public
+RUN chmod +x /usr/local/bin/entrypoint \
+    && chown -R www-data:www-data storage bootstrap/cache public
 
 USER www-data
 
@@ -127,3 +123,10 @@ EXPOSE 9000
 
 ENTRYPOINT ["entrypoint"]
 CMD ["php-fpm"]
+
+FROM nginx:1.27-alpine AS web
+
+WORKDIR /var/www/html
+
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=app /var/www/html/public ./public
