@@ -4,7 +4,7 @@ Full-stack event marketplace built with Laravel 12, React, and Lighthouse GraphQ
 
 Demo Url:
 
-https://demo.events.hmhnetworksolutions.co.uk/about-us
+https://demo.events.hmhnetworksolutions.co.uk/
 
 ## Features
 - Event catalog with search, type/location filters, and monthly views.
